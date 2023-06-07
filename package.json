@@ -1,0 +1,19 @@
+{
+  "name": "cap-srv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "balex",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "blob-to-buffer": "^1.2.9",
+    "express": "^4.18.2",
+    "express-favicon": "^2.0.4",
+    "morgan": "^1.10.0",
+    "oracledb": "^6.0.0"
+  }
+}
