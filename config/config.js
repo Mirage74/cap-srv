@@ -20,3 +20,7 @@ export  const connectString = "localhost:1521/xe"
   // Setting externalAuth is optional.  It defaults to false.  See:
   // https://node-oracledb.readthedocs.io/en/latest/user_guide/connection_handling.html#extauth
   //externalAuth  : process.env.NODE_ORACLEDB_EXTERNALAUTH ? true : false,
+
+  export const mySecret = "smNz2kOL!8$4"
+
+  export const BCRYPT_SALT_ROUNDS = 12

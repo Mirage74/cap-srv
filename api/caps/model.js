@@ -1,16 +1,29 @@
-//const capsSchema = {
-//  id : id,
-//  country_name: String,
-//  capital_name: String,
-//  diff_lvl: Number,
-//  year: Number,
-//  title: ,
-//  durationMin: Number,
-//  durationSec: Number,
-//  contents: String
-//}
-//
-//
-//songSchema.statics.publicFields = ['artist', 'genre', 'year', 'title', 'durationMin', 'durationSec', 'contents']
-//const songModel = mongoose.model('Song', songSchema)
-//module.exports = songModel
+export const UserModel = (sequelize, type) => {
+  return sequelize.define('USERS', {
+    DISPLAYNAME: {
+      type: type.STRING,
+      allowNull: false,
+      unique: true,
+      primaryKey: true
+    }, 
+    PASSWORDHASH: {
+      type: type.STRING,
+      allowNull: false
+    },
+    BESTSCORE0: {
+      type: type.NUMBER,
+      allowNull: true
+    },     
+    BESTSCORE1: {
+      type: type.NUMBER,
+      allowNull: true
+    },     
+    BESTSCORE2: {
+      type: type.NUMBER,
+      allowNull: true
+    }
+  })
+};
+
+
+
