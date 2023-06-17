@@ -21,6 +21,6 @@ export  const connectString = "localhost:1521/xe"
   // https://node-oracledb.readthedocs.io/en/latest/user_guide/connection_handling.html#extauth
   //externalAuth  : process.env.NODE_ORACLEDB_EXTERNALAUTH ? true : false,
 
-  export const mySecret = "smNz2kOL!8$4"
+  export const mySecret = "~!T{!?aTCy-[Pg3e"
 
   export const BCRYPT_SALT_ROUNDS = 12

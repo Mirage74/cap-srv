@@ -3,8 +3,8 @@ const pathServer = "http://localhost:4000/api/login"
 
 
 const configAx = {
-  login: "login0207243",
-  password: "password123"
+  login: "Alex",
+  password: "pass123"
   }
 axios.post(
     pathServer,

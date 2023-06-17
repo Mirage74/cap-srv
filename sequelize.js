@@ -10,15 +10,15 @@ const sequelize = new Sequelize({
   logging: false,
   "define":
     { "id": false,
-      "freezeTableName": true, 
-      "createdAt": false, 
-      "updatedAt": false },
+      "freezeTableName": true,
+      "createdAt": true, 
+      "updatedAt": true },
   dialectOptions: {connectString: dbConfig.connectString}});
 
 
 sequelize.sync()
   .then(() => {
-    console.log('This is message from "sequelize.js", connected to DB');
+    //console.log('This is message from "sequelize.js", connected to DB');
   });
 
 export const User = UserModel(sequelize, Sequelize);

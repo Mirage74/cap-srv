@@ -6,7 +6,7 @@ oracledb.autoCommit = true;
 
 const BCRYPT_SALT_ROUNDS = dbConfig.BCRYPT_SALT_ROUNDS
 
-export const getCaps = async (req, res, next) => {
+export const getCaps = async (req, res) => {
   let connection;
   try {
     let sql, binds, options, result;
@@ -15,11 +15,8 @@ export const getCaps = async (req, res, next) => {
     binds = {};
     options = {
       outFormat: oracledb.OUT_FORMAT_OBJECT
-      // extendedMetaData: true,               // get extra metadata
-      // fetchArraySize:   100                 // internal buffer allocation size for tuning
     };
     result = await connection.execute(sql, binds, options);
-    //console.log("binds : ", binds)
     result = result.rows;
     let capsCut = []
     let capsArrOfObj = []
@@ -41,11 +38,6 @@ export const getCaps = async (req, res, next) => {
       obj.imageName = capsCut[i][4]
       capsArrOfObj.push(obj)
     }
-
-
-    //console.log("capsArrOfObj : ", capsArrOfObj[0])
-    //console.log("capsArrOfObj : ", capsArrOfObj.length)
-
     res.json({
       caps: capsArrOfObj
     })
@@ -63,8 +55,7 @@ export const getCaps = async (req, res, next) => {
 }
 
 
-export const getCapsByID = async (req, res, next) => {
-  //console.log("22222", req.params)
+export const getCapsByID = async (req, res) => {
   let connection;
   try {
     let sql, binds, options, result;
@@ -73,11 +64,8 @@ export const getCapsByID = async (req, res, next) => {
     binds = {};
     options = {
       outFormat: oracledb.OUT_FORMAT_OBJECT   // query result format
-      // extendedMetaData: true,               // get extra metadata
-      // fetchArraySize:   100                 // internal buffer allocation size for tuning
     };
     result = await connection.execute(sql, binds, options);
-    //console.log("result.rows[0] : ", result.rows[0])
     binds = result.rows[0];
     res.json({
       capByID: binds
@@ -96,130 +84,112 @@ export const getCapsByID = async (req, res, next) => {
 }
 
 
-
-export const postRegUser = async (req, res, next) => {
-  //let connection;
-  //  console.log("req.body.login : ", req.body.login)
-  //  console.log("req.body.password : ", req.body.password)
+export const postRegUser = async (req, res) => {
 
   if (req.body.login === '' || req.body.password === '') {
-    res.json('login and password required');
+    res.json(`CODE REG_USER_03 login and password required`);
   }
 
-  let newUser = {}
-  newUser.DISPLAYNAME = req.body.login.toLowerCase(),
-    newUser.BESTSCORE0 = 0,
-    newUser.BESTSCORE1 = 0,
-    newUser.BESTSCORE2 = 0
-
-
-  User.findOne({
+  const user = await User.findOne({
     where: {
       DISPLAYNAME: req.body.login.toLowerCase()
     }
   })
-
-    .then(user => {
-
-      if (user !== null) {
-        res.json('username already taken');
-      } else {
-
-        bcrypt.genSalt(BCRYPT_SALT_ROUNDS, (err, salt) => {
-
-          bcrypt.hash(req.body.password, salt)
-            .then((hashedPassword) => {
-              //console.log("hashedPassword : ", hashedPassword)
-              newUser.PASSWORDHASH = hashedPassword
-              User.create(newUser)
-            })
-            .then(() => {
-              console.log('user created');
-              res.json('user created');
-            })
-        })
-      }
-    })
     .catch(err => {
       console.log('problem communicating with db');
       res.status(500).json(err);
     })
+  if (user !== null) {
+    res.json(`CODE REG_USER_02 Username "${req.body.login}" is already exist`);
+  } else {
 
+    let newUser = {}
+    newUser.DISPLAYNAME = req.body.login.toLowerCase()
+    newUser.BESTSCORE0 = 0
+    newUser.BESTSCORE1 = 0
+    newUser.BESTSCORE2 = 0
+    bcrypt.genSalt(BCRYPT_SALT_ROUNDS, (err, salt) => {
+
+      bcrypt.hash(req.body.password, salt)
+        .then((hashedPassword) => {
+          newUser.PASSWORDHASH = hashedPassword
+          User.create(newUser)
+        })
+        .then(() => {
+          res.json(`CODE REG_USER_01 User "${req.body.login}" is successfully created`);
+        })
+    })
+  }
 }
 
 
+export const postUpdateUser = async (req, res) => {
 
+  if (req.body.login === '' || (req.body.BESTSCORE0 === '' && req.body.BESTSCORE1 === '' && req.body.BESTSCORE2 === '')) {
+    res.json(`CODE UPDATE_USER_02 login and one of "BESTSCORE" required`);
+  }
+  const user = await User.findOne({
+    where: {
+      DISPLAYNAME: req.body.login.toLowerCase()
+    }
+  })
+    .catch(err => {
+      console.log('problem communicating with db');
+      res.status(500).json(err);
+    })
+  if (user !== null) {
 
-// const checkHash = async (pass, hashFromDB) => {
-//   const hashedPassword = await bcrypt.hash(pass, salt)
-//   const isEqual = hashedPassword === hashFromDB
-//   return isEqual
-// }
+    let newUser = {}
+    newUser.DISPLAYNAME = req.body.login.toLowerCase()
+    if (req.body.BESTSCORE0) { newUser.BESTSCORE0 = parseInt(req.body.BESTSCORE0) } else {newUser.BESTSCORE0 = user.BESTSCORE0}
+    if (req.body.BESTSCORE1) { newUser.BESTSCORE1 = parseInt(req.body.BESTSCORE1) } else {newUser.BESTSCORE1 = user.BESTSCORE1}
+    if (req.body.BESTSCORE2) { newUser.BESTSCORE2 = parseInt(req.body.BESTSCORE2) } else {newUser.BESTSCORE2 = user.BESTSCORE2}
+    if (isNaN(newUser.BESTSCORE0) || isNaN(newUser.BESTSCORE1) || isNaN(newUser.BESTSCORE2)) {
+      res.json(`CODE UPDATE_USER_04 one of "BESTSCORE" is not a number`);
+    }
+    
+    const updatedUser = await User.update({ BESTSCORE0: newUser.BESTSCORE0, BESTSCORE1: newUser.BESTSCORE1, BESTSCORE2: newUser.BESTSCORE2 }, {
+      where: {
+        DISPLAYNAME: newUser.DISPLAYNAME
+      }
+    });
 
-export const postLogin = async (req, res, next) => {
+    res.json(`UPDATE_USER_01 Username "${req.body.login}" is successfully updated, number updated row: ${updatedUser}`);
+  } else {
+    res.json(`UPDATE_USER_03 Username "${req.body.login}" is not exist`);
+  }
 
-  console.log("req.body.login : ", req.body.login)
-  console.log("req.body.password : ", req.body.password)
+}
+
+export const postLogin = async (req, res) => {
 
   if (req.body.login === '' || req.body.password === '') {
     res.json('login and password required');
   }
 
-
-
-  // 
-
-
-  User.findOne({
+  let user = await User.findOne({
     where: {
       DISPLAYNAME: req.body.login.toLowerCase()
     }
   })
-
-    .then(async user => {
-
-      // passport.authenticate('local', function (err, user) {
-      //   if (user == false) {
-      //     //ctx.body = "Login failed";
-      //     res.json('login fall 1111');
-      //   } else {
-      //     res.json('login good 33333');
-
-      //     // let userObj = {
-      //     //   _id: user._id,
-      //     //   displayName: user.displayName,
-      //     //   bestScore: user.bestScore,
-      //     //   lastRes: user.lastRes,
-      //     //   debuginfo: user.debuginfo
-      //     // }
-      //   return user  
-      //   }
-      // })
-
-
-
-      //console.log('user exist', user.dataValues);
-
-
-      if (req.isAuthenticated) {
-        let flag = await req.isAuthenticated(user.dataValues.PASSWORDHASH)
-        //console.log("flag : ", flag)
-        if (typeof flag !== 'undefined') {
-          console.log("flag 111: ", flag)
-          if (flag) {
-            res.json("Authenticated");
-          } else {
-            console.log("flag : ", flag)
-            res.json("Not Authenticated");
-          }
-        }
-      }
-
-    })
-
     .catch(err => {
       console.log("err : ", err)
       console.log('problem communicating with db');
       res.status(500).json(err);
     })
+  //console.log("user : ", user)
+  //if (req.isAuthenticated) {
+  if (user !== null) {
+    let flag = await req.isAuthenticated(user.dataValues.PASSWORDHASH)
+    if (typeof flag !== 'undefined') {
+      if (flag) {
+        res.json(`CODE LOG_01, user "${user.DISPLAYNAME}" is authentificated`);
+      } else {
+        res.json(`CODE LOG_02, user "${user.DISPLAYNAME}" is exist, but not authentificated`);
+      }
+    }
+  } else {
+    res.json(`CODE LOG_03, user "${req.body.login}" is not exist`);
+  }
+
 }
