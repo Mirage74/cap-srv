@@ -2,6 +2,7 @@ import oracledb from 'oracledb';
 import * as dbConfig from '../../config/config.js';
 import { User } from '../../sequelize.js';
 import bcrypt from 'bcrypt';
+import passport from 'passport'
 oracledb.autoCommit = true;
 
 const BCRYPT_SALT_ROUNDS = dbConfig.BCRYPT_SALT_ROUNDS
@@ -161,35 +162,34 @@ export const postUpdateUser = async (req, res) => {
 
 }
 
-export const postLogin = async (req, res) => {
+// export const postLogin = async (req, res) => {
 
-  if (req.body.login === '' || req.body.password === '') {
-    res.json('login and password required');
-  }
+//   if (req.body.login === '' || req.body.password === '') {
+//     res.json('login and password required');
+//   }
 
-  let user = await User.findOne({
-    where: {
-      DISPLAYNAME: req.body.login.toLowerCase()
-    }
-  })
-    .catch(err => {
-      console.log("err : ", err)
-      console.log('problem communicating with db');
-      res.status(500).json(err);
-    })
-  //console.log("user : ", user)
-  //if (req.isAuthenticated) {
-  if (user !== null) {
-    let flag = await req.isAuthenticated(user.dataValues.PASSWORDHASH)
-    if (typeof flag !== 'undefined') {
-      if (flag) {
-        res.json(`CODE LOG_01, user "${user.DISPLAYNAME}" is authentificated`);
-      } else {
-        res.json(`CODE LOG_02, user "${user.DISPLAYNAME}" is exist, but not authentificated`);
-      }
-    }
-  } else {
-    res.json(`CODE LOG_03, user "${req.body.login}" is not exist`);
-  }
+//   let user = await User.findOne({
+//     where: {
+//       DISPLAYNAME: req.body.login.toLowerCase()
+//     }
+//   })
+//     .catch(err => {
+//       console.log("err : ", err)
+//       console.log('problem communicating with db');
+//       res.status(500).json(err);
+//     })
+  
+//   if (user !== null) {
+//     let flag = await req.isAuthenticated(user.dataValues.PASSWORDHASH)
+//     if (typeof flag !== 'undefined') {
+//       if (flag) {
+//         res.json(`CODE LOG_01, user "${user.DISPLAYNAME}" is authentificated`);
+//       } else {
+//         res.json(`CODE LOG_02, user "${user.DISPLAYNAME}" is exist, but not authentificated`);
+//       }
+//     }
+//   } else {
+//     res.json(`CODE LOG_03, user "${req.body.login}" is not exist`);
+//   }
+// }
 
-}
