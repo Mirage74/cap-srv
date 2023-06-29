@@ -1,0 +1,7 @@
+https://localhost:4000/oauth2callback
+
+Client ID:
+1057527305597-hp1bso1403hj8hhc9c416a42hp9olhb5.apps.googleusercontent.com
+
+Client Secret:
+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

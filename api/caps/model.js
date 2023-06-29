@@ -6,6 +6,10 @@ export const UserModel = (sequelize, type) => {
       unique: true,
       primaryKey: true
     }, 
+    TYPELOGIN: {
+      type: type.STRING,
+      allowNull: false
+    },
     PASSWORDHASH: {
       type: type.STRING,
       allowNull: false

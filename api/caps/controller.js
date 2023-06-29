@@ -106,9 +106,11 @@ export const postRegUser = async (req, res) => {
 
     let newUser = {}
     newUser.DISPLAYNAME = req.body.login.toLowerCase()
+    newUser.TYPELOGIN = 'local'
     newUser.BESTSCORE0 = 0
     newUser.BESTSCORE1 = 0
     newUser.BESTSCORE2 = 0
+    console.log('newUser : ', newUser);
     bcrypt.genSalt(BCRYPT_SALT_ROUNDS, (err, salt) => {
 
       bcrypt.hash(req.body.password, salt)

@@ -3,7 +3,7 @@ const pathServer = "http://localhost:4000/api/updateUser"
 
 
 const configAx = {
-  login: "Aksana",
+  login: "Alex",
   BESTSCORE2: "11"
   }
 axios.post(

@@ -3,7 +3,7 @@ const pathServer = "http://localhost:4000/api/createUser"
 
 
 const configAx = {
-  login: "Aksana",
+  login: "Roma",
   password: "pass123"
   }
 axios.post(
