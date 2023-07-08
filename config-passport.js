@@ -84,7 +84,7 @@ export const postLogin = async (req, res, next) => {
     // console.log("req.body : ", req.body)
     // console.log("user : ", user)
     if (!user) {
-      return res.json('Wrong login or password !');
+      return res.json('CODE LOGIN_USER_02 Wrong login or password !');
     }
     req.login(user, (err) => {
       if (err) {
