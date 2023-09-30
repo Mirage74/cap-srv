@@ -16,6 +16,8 @@ export const capsRoutes = (router) => {
     router.post('/updateUser', postUpdateUser);
     router.post('/userScore', postUserScore);
     router.post('/login', postLogin);
+
+    router.get('/loginFacebook', getLoginFacebook);
     // router.get('/google', getGoogleLogin);    
     // router.get('/google/oauth2callback', getGoogleCallback);    
 }
