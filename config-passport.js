@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as FacebookStrategy } from 'passport-facebook'
 import { User } from './sequelize.js';
 import bcrypt, { hash } from 'bcrypt';
-import { FACEBOOK_CLIENT_ID, FACEBOOK_SECRET_KEY, FACEBOOK_CALLBACK_URL } from './config/config.js';
+import { FACEBOOK_CLIENT_ID, FACEBOOK_SECRET_KEY, FACEBOOK_CALLBACK_URL} from './config/config.js';
 
 
 passport.serializeUser((user, done) => {

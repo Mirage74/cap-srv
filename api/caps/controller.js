@@ -1,5 +1,6 @@
 import oracledb from 'oracledb';
 import * as dbConfig from '../../config/config.js';
+import { LOGIN_MIN_LENGTH, LOGIN_MAX_LENGTH } from '../../config/config.js';
 import { User } from '../../sequelize.js';
 import bcrypt from 'bcrypt';
 oracledb.autoCommit = true;
@@ -87,47 +88,52 @@ export const getCapsByID = async (req, res) => {
   }
 }
 
+const checkLogin = str => {
+  return /^[A-Za-z][A-Za-z0-9]*$/.test(str)
+}
+
 
 export const postRegUser = async (req, res) => {
-
   if (!req.body.login || !req.body.password || req.body.login === '' || req.body.password === '') {
-    res.json(`CODE REG_USER_01 login and password required`);
-  }
-
-  const user = await User.findOne({
-    where: {
-      DISPLAYNAME: req.body.login.toLowerCase()
-    }
-  })
-    .catch(err => {
-      console.log('problem communicating with db');
-      res.status(500).json(err);
-    })
-  if (user !== null) {
-    res.json(`CODE REG_USER_02 Username "${req.body.login}" is already exist`);
+    res.json(`CODE REG_USER_04 login and password required`);
+  } else if (!checkLogin(req.body.login) || req.body.login.length <= LOGIN_MIN_LENGTH || req.body.login.length >= LOGIN_MAX_LENGTH) {
+    res.json(`CODE REG_USER_05 login: 1) must contain only letters, numbers or underscore, 2) begin from letter; 3) min length = ${LOGIN_MIN_LENGTH}, max length = ${LOGIN_MAX_LENGTH}`);
   } else {
-
-    let newUser = {}
-    newUser.DISPLAYNAME = req.body.login.toLowerCase()
-    if (newUser.DISPLAYNAME.search("is already exist") > -1 || newUser.DISPLAYNAME.search("\"") > -1) {
-      res.json(`CODE REG_USER_03 Illegal Username "${req.body.login}"`);
-    }
-    newUser.TYPELOGIN = 'local'
-    newUser.BESTSCORE = 0
-    newUser.LAST_RES = "0"
-    newUser.BEST_RES = "0"
-    console.log('newUser : ', newUser);
-    bcrypt.genSalt(BCRYPT_SALT_ROUNDS, (err, salt) => {
-
-      bcrypt.hash(req.body.password, salt)
-        .then((hashedPassword) => {
-          newUser.PASSWORDHASH = hashedPassword
-          User.create(newUser)
-        })
-        .then(() => {
-          res.json(`CODE REG_USER_01 User : "${req.body.login}" is successfully created`);
-        })
+    const user = await User.findOne({
+      where: {
+        DISPLAYNAME: req.body.login.toLowerCase()
+      }
     })
+      .catch(err => {
+        console.log('problem communicating with db');
+        res.status(500).json(err);
+      })
+    if (user !== null) {
+      res.json(`CODE REG_USER_02 Username "${req.body.login}" is already exist`);
+    } else {
+
+      let newUser = {}
+      newUser.DISPLAYNAME = req.body.login.toLowerCase()
+      if (newUser.DISPLAYNAME.search("is already exist") > -1 || newUser.DISPLAYNAME.search("\"") > -1) {
+        res.json(`CODE REG_USER_03 Illegal Username "${req.body.login}"`);
+      }
+      newUser.TYPELOGIN = 'local'
+      newUser.BESTSCORE = 0
+      newUser.LAST_RES = "0"
+      newUser.BEST_RES = "0"
+      console.log('newUser : ', newUser);
+      bcrypt.genSalt(BCRYPT_SALT_ROUNDS, (err, salt) => {
+
+        bcrypt.hash(req.body.password, salt)
+          .then((hashedPassword) => {
+            newUser.PASSWORDHASH = hashedPassword
+            User.create(newUser)
+          })
+          .then(() => {
+            res.json(`CODE REG_USER_01 User : "${req.body.login}" is successfully created`);
+          })
+      })
+    }
   }
 }
 
